@@ -1,6 +1,6 @@
 local M = {}
 
-local winopts = require("nIM_nvim.util.winopts")
+local winopts = require("nIM.util.winopts")
 local interpreters, keymap, win_opts
 
 local function get_command(fpath, ftype)
@@ -46,7 +46,12 @@ local function run_file_logic()
 	local cmd = get_command(fpath, ftype)
 
 	if not cmd then
-		vim.notify("No runner for filetype '" .. ftype .. "' and no shebang/executable file.", vim.log.levels.ERROR)
+		vim.notify(
+			"No runner for filetype '"
+				.. ftype
+				.. "' and no shebang/executable file.",
+			vim.log.levels.ERROR
+		)
 		return
 	end
 
