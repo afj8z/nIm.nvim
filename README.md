@@ -63,7 +63,14 @@ require("nIM").setup({
     keymap = "<Leader>m",
   },
 })
-Full Configuration (Defaults)Users may override any portion of the default configuration by passing a table to the setup() function. The structure below illustrates all available options with their default values.require("nIM").setup({
+```
+### Full Configuration (Defaults)
+Users may override any portion of the default configuration 
+by passing a table to the `setup()` function. 
+The structure below illustrates all available options with their 
+default values.
+```lua
+require("nIM").setup({
   -- Master table to enable or disable specific sub-modules.
   enabled = {
     match_parens = true,
