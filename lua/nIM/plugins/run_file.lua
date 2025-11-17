@@ -1,18 +1,16 @@
 local M = {}
 
 local winopts = require("nIM.util.winopts")
-local interpreters, keymap, win_opts
+local interpreters, win_opts
 
 local function get_command(fpath, ftype)
 	local custom_cmd = interpreters[ftype]
 	if custom_cmd then
-		-- Return a copy of the table with fpath appended
 		local cmd = vim.tbl_deep_copy(custom_cmd)
 		table.insert(cmd, fpath)
 		return cmd
 	end
 
-	-- Fallback for shebang or executable
 	local first_line = (vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or "")
 	if first_line:sub(1, 2) == "#!" then
 		local she = first_line:sub(3):gsub("^%s+", "")
@@ -61,13 +59,10 @@ end
 
 ---@param opts table: The config.run_file table
 function M.setup(opts)
-	-- Set module-level variables from config
 	interpreters = opts.interpreters
-	keymap = opts.keymap
 	win_opts = opts.win_opts
-
-	-- Set the keymap
-	vim.keymap.set("n", keymap, run_file_logic, { desc = "Run file in split" })
 end
+
+M.logic = run_file_logic
 
 return M

@@ -7,7 +7,6 @@ M.opts = {
 		run_file = true,
 	},
 
-	-- Configuration for match_parens sub-plugin
 	match_parens = {
 		pairs = {
 			["("] = ")",
@@ -25,10 +24,8 @@ M.opts = {
 		},
 	},
 
-	-- Configuration for run_file sub-plugin
 	run_file = {
-		keymap = "<Leader>m",
-		-- Default interpreter map
+		keymap = nil, -- Default to nil. User must provide this in setup()
 		interpreters = {
 			python = { "python3" },
 			lua = { "lua" },
@@ -39,7 +36,6 @@ M.opts = {
 			zsh = { "zsh" },
 			go = { "go", "run" },
 		},
-		-- Default window options
 		win_opts = {
 			height = 0.25,
 			max_height = 9,
