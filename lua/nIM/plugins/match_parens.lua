@@ -1,17 +1,16 @@
--- lua/nIM_nvim/plugins/match_parens.lua
 local M = {}
 
 local ns, pairs_map, hl_groups
 
----
--- Checks syntax using Tree-sitter.
----
+---Checks syntax using Tree-sitter.
+---@return boolean
 local function is_in_syntax_ts(lnum, col)
 	local ok, parser = pcall(vim.treesitter.get_parser, 0)
 	if not ok or not parser then
 		return false
 	end
-	local node = vim.treesitter.get_node({ bufnr = 0, pos = { lnum - 1, col - 1 } })
+	local node =
+		vim.treesitter.get_node({ bufnr = 0, pos = { lnum - 1, col - 1 } })
 	if not node then
 		return false
 	end
@@ -32,7 +31,8 @@ end
 local function is_in_syntax_legacy(lnum, col)
 	local syn_id = vim.fn.synID(lnum, col, 0)
 	local syn_name = vim.fn.synIDattr(syn_id, "name") or ""
-	return string.find(string.lower(syn_name), "string") or string.find(string.lower(syn_name), "comment")
+	return string.find(string.lower(syn_name), "string")
+		or string.find(string.lower(syn_name), "comment")
 end
 
 ---
@@ -151,12 +151,14 @@ function M.setup(opts)
 	-- Disable built-in matchparen
 	vim.g.loaded_matchparen = 1
 
-	local aug1 = vim.api.nvim_create_augroup("BracketRegionHL", { clear = true })
+	local aug1 =
+		vim.api.nvim_create_augroup("BracketRegionHL", { clear = true })
 	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 		group = aug1,
 		callback = highlight_between,
 	})
-	local aug2 = vim.api.nvim_create_augroup("BracketRegionHL_Clear", { clear = true })
+	local aug2 =
+		vim.api.nvim_create_augroup("BracketRegionHL_Clear", { clear = true })
 	vim.api.nvim_create_autocmd({ "BufLeave", "InsertLeave" }, {
 		group = aug2,
 		callback = function()
