@@ -1,16 +1,23 @@
 local M = {}
 
+--
 local winopts = require("nIM.util.winopts")
-local interpreters, win_opts
+local interpreters, keymap, win_opts
 
 local function get_command(fpath, ftype)
 	local custom_cmd = interpreters[ftype]
-	if custom_cmd then
-		local cmd = vim.tbl_deep_copy(custom_cmd)
+
+	-- Check the type of the interpreter
+	if type(custom_cmd) == "function" then
+		return custom_cmd(fpath)
+	elseif type(custom_cmd) == "table" then
+		-- Changed 'vim.tbl_deep_copy' to 'vim.deepcopy'
+		local cmd = vim.deepcopy(custom_cmd)
 		table.insert(cmd, fpath)
 		return cmd
 	end
 
+	-- Fallback for shebang or executable
 	local first_line = (vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or "")
 	if first_line:sub(1, 2) == "#!" then
 		local she = first_line:sub(3):gsub("^%s+", "")
@@ -60,6 +67,7 @@ end
 ---@param opts table: The config.run_file table
 function M.setup(opts)
 	interpreters = opts.interpreters
+	keymap = opts.keymap
 	win_opts = opts.win_opts
 end
 

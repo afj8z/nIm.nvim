@@ -1,7 +1,9 @@
+-- lua/nIM/config.lua
 local M = {}
 
+local interpreter_defaults = require("nIM.interpreters").defaults
+
 M.opts = {
-	-- enable/disable sub-plugins
 	enabled = {
 		match_parens = true,
 		run_file = true,
@@ -25,21 +27,13 @@ M.opts = {
 	},
 
 	run_file = {
-		keymap = nil, -- Default to nil. User must provide this in setup()
-		interpreters = {
-			python = { "python3" },
-			lua = { "lua" },
-			javascript = { "node" },
-			typescript = { "tsx" },
-			sh = { "bash" },
-			bash = { "bash" },
-			zsh = { "zsh" },
-			go = { "go", "run" },
-		},
+		keymap = nil,
+		interpreters = interpreter_defaults,
 		win_opts = {
-			height = 0.25,
-			max_height = 9,
+			height = 0.15,
+			max_height = 5,
 			min_height = 3,
+			-- FIX: Add the %d placeholder for the height
 			split_cmd = "belowright %dsplit",
 		},
 	},
