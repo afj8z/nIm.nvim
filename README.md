@@ -27,19 +27,29 @@ recommended in order to avoid the string-bug.
 ### Run File:
 Simple asynchronous file execution utility.
 
-Executes the current file using a configurable, filetype-specific interpreter.
-Streams both stdout and stderr asynchronously to a dedicated split window,
-which is a "nofile" buffer rather than a terminal. Creates a "link" between
-the file and output, allowing for execution of the file from within the
-output-buffer and avoiding duplicate output-buffers.
+Executes the current file using a filetype-specific interpreter.
+Streams output to a dedicated buffer, which is a "nofile" buffer rather than 
+a terminal. Creates a "link" between the file and output, allowing for execution 
+of the file from within the output-buffer and avoiding duplicate output-buffers.
 
-Assigns buffer-local keymaps to the output window for improved usability
+- Window Flexibility: Choose between splits (`split`, `vsplit`), 
+floating windows (`float`), or new buffers (`new`).
 
-- `q`: Closes the output window.
-- `d`: Gathers all diagnostics from the original source file, populates them
-    into the quickfix list, and then closes the output window.
+- Smart Keymaps: Defaults to `q` (`close`) and `d` (`quickfix` `diagnostics`), 
+but fully customizable via `buf_keymaps`.
 
 In its current form its useful for short scripts.
+
+### Redir:
+
+Capture command output into a navigable buffer.
+
+- Usage: `:Redir` highlight or `:Redir !ls -la`.
+
+- Modifiers: Supports `:vertical Redir ...` or `:tab Redir ...`.
+
+- Shortcuts: Map a key (e.g., `<C-v>`) to capture the current command line
+command before executing.
 
 ## Installation and Setup
 
@@ -59,76 +69,92 @@ and assign a required keymap for the `run_file` module.
 -- in init.lua
 require("nIM").setup({
   run_file = {
-    -- This keymap is essential for using the run_file module.
-    keymap = "<Leader>m",
+    keymap = "<Leader>m", -- Trigger run_file
   },
+  redir = {
+    keymaps = {
+      expand_cmd = "<C-v>" -- Redirect current command line
+    }
+  }
 })
 ```
 ### Full Configuration (Defaults)
 Users may override any portion of the default configuration 
 by passing a table to the `setup()` function. 
-The structure below illustrates all available options with their 
-default values.
+Here you can find all configurable options:
 ```lua
 require("nIM").setup({
   -- Master table to enable or disable specific sub-modules.
   enabled = {
     match_parens = true,
     run_file = true,
+    redir = true,
   },
 
-  -- Configuration options for the Match Parens module.
+  -- Global defaults for floating windows
+  float = {
+    width = 0.8, -- 0.0-1.0 (ratio) or fixed integer
+    height = 0.8,
+    border = "rounded",
+    style = "minimal",
+  },
+
+  -- Global defaults for window options (vim.wo)
+  style = {
+    number = false,
+    relativenumber = false,
+  },
+
   match_parens = {
-    -- A table defining the bracket pairs to be matched.
-    pairs = {
-      ["("] = ")",
-      ["["] = "]",
-      ["{"] = "}",
-      [")"] = "(",
-      ["]"] = "[",
-      ["}"] = "{",
-      ["<"] = ">",
-      [">"] = "<",
-    },
-    -- Specify the highlight groups to be used.
+    pairs = { ["("] = ")", ["["] = "]", ["{"] = "}", ["<"] = ">" }, -- (and reverse)
     hl_groups = {
-      region = "BracketRegion", -- For the region between brackets.
-      paren = "MatchParen", -- For the brackets themselves.
+      region = "BracketRegion",
+      paren = "MatchParen",
     },
   },
 
-  -- Configuration options for the Run File module.
   run_file = {
-    -- Keymap to trigger the run_file logic.
-    -- This is `nil` by default and must be set by the user.
     keymap = nil,
+    interpreters = require("nIM.interpreters").defaults,
 
-    -- A map of filetypes to their corresponding execution commands.
-    -- Entries may be a table of strings (e.g., {"python3"})
-    -- or a function that returns a table (for dynamic resolution).
-    interpreters = {
-      python = { "python3" },
-      lua = { "lua" },
-      typescript = function(fpath)
-        if vim.fn.executable("tsx") == 1 then
-          return { "tsx", fpath }
-        end
-        if vim.fn.executable("ts-node") == 1 then
-          return { "ts-node", fpath }
-        end
-        if vim.fn.executable("deno") == 1 then
-          return { "deno", "run", fpath }
-        end
-      end,
-      -- ... Additional interpreters are defined in lua/nIM/interpreters.lua
+    -- Window strategy: "splitb", "split", "vsplit", "vsplitl", "float", "new"
+    win = "splitb", 
+    
+    win_opts = {
+      height = 0.25, 
+      width = 0.3,
+      max_height = 9, 
+      min_height = 3,
+      border = "rounded",
     },
 
-    -- Configuration for the output window.
+    -- Buffer-local keymaps for the output window
+    -- Format: { {mode, lhs, rhs, opts}, ... }
+    buf_keymaps = {},
+    
+    -- Override global styles for this plugin
+    style = { number = false }, 
+  },
+
+  redir = {
+    win = "float",
+    
     win_opts = {
-      height = 0.25, -- Percentage of total screen height (0.0 to 1.0).
-      max_height = 9, -- Maximum height in rows.
-      min_height = 3, -- Minimum height in rows.
-      split_cmd = "belowright %dsplit", -- The Vim command used to create the split.
+      width = 0.4,
+      height = 0.5,
+      border = "rounded",
+    },
+    
+    style = { number = false },
+
+    -- Plugin actions
+    keymaps = {
+      expand_cmd = "<C-v>", -- Redirect current cmdline
+    },
+
+    -- Default buffer keymaps
+    buf_keymaps = {
+      { "n", "q", ":close<CR>", { desc = "Close Redir window" } },
     },
   },
 })
