@@ -17,7 +17,8 @@ M.opts = {
 	enabled = {
 		match_parens = true,
 		run_file = true,
-		redir = true, -- Enable the Redir command/module by default.
+		redir = true,
+		statusline = true,
 	},
 
 	---@class NIM_MatchParens_Options
@@ -119,6 +120,41 @@ M.opts = {
 		-- Format: { {mode, lhs, rhs, opts}, ... }
 		buf_keymaps = {
 			{ "n", "q", ":close<CR>", { desc = "Close Redir window" } },
+		},
+	},
+	---@class NIM_Statusline_Options
+	statusline = {
+		-- Icons table
+		icons = {
+			diagnostics = {
+				ERROR = "",
+				WARN = "",
+				HINT = "",
+				INFO = "",
+			},
+		},
+		-- Filetypes that render a minimal "internal" statusline
+		internal_fts = {
+			"help",
+			"checkhealth",
+			"man",
+			"lazy",
+			"DiffviewFiles",
+			"DiffviewFileHistory",
+			"OverseerForm",
+			"OverseerList",
+			"ccc-ui",
+			"dap-view",
+			"grug-far",
+			"codecompanion",
+			"lazyterm",
+			"minifiles",
+			"TelescopePrompt",
+		},
+		special_fts = {
+			"oil",
+			"fzf",
+			"fzf-lua",
 		},
 	},
 
