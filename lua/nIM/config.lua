@@ -149,7 +149,6 @@ M.opts = {
 			"codecompanion",
 			"lazyterm",
 			"minifiles",
-			"TelescopePrompt",
 		},
 		special_fts = {
 			"oil",
