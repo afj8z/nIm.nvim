@@ -25,9 +25,7 @@ local function is_in_syntax_ts(lnum, col)
 	return false
 end
 
----
 -- Checks syntax using legacy synID (fallback).
----
 local function is_in_syntax_legacy(lnum, col)
 	local syn_id = vim.fn.synID(lnum, col, 0)
 	local syn_name = vim.fn.synIDattr(syn_id, "name") or ""
@@ -35,9 +33,7 @@ local function is_in_syntax_legacy(lnum, col)
 		or string.find(string.lower(syn_name), "comment")
 end
 
----
 -- Dispatches to TS or legacy syntax checker.
----
 local function is_in_syntax(lnum, col)
 	local l = lnum or vim.fn.line(".")
 	local c = col or vim.fn.col(".")

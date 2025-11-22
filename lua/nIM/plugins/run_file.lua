@@ -42,7 +42,7 @@ end
 local function run_file_logic()
 	local fpath
 	local ftype
-	local original_bufnr -- Store the bufnr of the file run
+	local original_bufnr
 
 	local current_buf = vim.api.nvim_get_current_buf()
 	if run_state.buf_id and current_buf == run_state.buf_id then
@@ -82,8 +82,6 @@ local function run_file_logic()
 	local cwd = vim.fn.fnamemodify(fpath, ":p:h")
 	local buf_id
 	local line_to_add = 0
-
-	-- Generate the buffer name
 	local buf_name = "[nIM_run:" .. vim.fn.fnamemodify(fpath, ":t") .. "]"
 
 	if
@@ -95,44 +93,70 @@ local function run_file_logic()
 	end
 
 	if run_state.win_id then
+		-- Reuse logic
 		buf_id = run_state.buf_id
 		vim.api.nvim_set_current_win(run_state.win_id)
-		vim.api.nvim_buf_set_name(buf_id, buf_name) -- Set name on reuse
+		vim.api.nvim_buf_set_name(buf_id, buf_name)
 		vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, {})
 	else
-		-- Create new window and pass the buffer name
-		local new_win = winopts.open_in_split(win_opts, buf_name)
+		-- Define Default Keymaps using closures for run_state/diagnostics
+		local default_keymaps = {
+			{
+				"n",
+				"q",
+				function()
+					if vim.api.nvim_win_is_valid(run_state.win_id) then
+						vim.api.nvim_win_close(run_state.win_id, false)
+					end
+				end,
+				{ desc = "Close run window" },
+			},
+
+			{
+				"n",
+				"d",
+				function()
+					local diagnostics = vim.diagnostic.get(original_bufnr)
+					if #diagnostics > 0 then
+						local qf_items = vim.diagnostic.toqflist(diagnostics)
+						vim.fn.setqflist(qf_items, "r")
+						vim.cmd.copen()
+					else
+						vim.notify(
+							"No diagnostics for "
+								.. vim.fn.fnamemodify(fpath, ":t"),
+							vim.log.levels.INFO
+						)
+					end
+					if vim.api.nvim_win_is_valid(run_state.win_id) then
+						vim.api.nvim_win_close(run_state.win_id, false)
+					end
+				end,
+				{ desc = "Show diagnostics in quickfix" },
+			},
+		}
+
+		-- Merge: defaults first, then user config (so user overrides defaults)
+		local win_creation_opts = vim.tbl_extend("force", {}, config_opts)
+		local user_keymaps = win_creation_opts.buf_keymaps or {}
+		local merged_keymaps = {}
+
+		for _, map in ipairs(default_keymaps) do
+			table.insert(merged_keymaps, map)
+		end
+		for _, map in ipairs(user_keymaps) do
+			table.insert(merged_keymaps, map)
+		end
+
+		win_creation_opts.buf_keymaps = merged_keymaps
+
+		-- Create Window with merged maps
+		local new_win = winopts.create_window(win_creation_opts, buf_name)
 		run_state.win_id = new_win.win_id
 		run_state.buf_id = new_win.buf_id
 		buf_id = new_win.buf_id
 
-		-- buffer-local keymaps
-		-- 'q' to close the window
-		vim.keymap.set("n", "q", function()
-			if vim.api.nvim_win_is_valid(run_state.win_id) then
-				vim.api.nvim_win_close(run_state.win_id, false)
-			end
-		end, { buffer = buf_id, desc = "Close run window" })
-
-		-- 'd' to show diagnostics in quickfix and close
-		vim.keymap.set("n", "d", function()
-			local diagnostics = vim.diagnostic.get(original_bufnr)
-			if #diagnostics > 0 then
-				local qf_items = vim.diagnostic.toqflist(diagnostics)
-				vim.fn.setqflist(qf_items, "r")
-				vim.cmd.copen()
-			else
-				vim.notify(
-					"No diagnostics to show for "
-						.. vim.fn.fnamemodify(fpath, ":t"),
-					vim.log.levels.INFO
-				)
-			end
-			if vim.api.nvim_win_is_valid(run_state.win_id) then
-				vim.api.nvim_win_close(run_state.win_id, false)
-			end
-		end, { buffer = buf_id, desc = "Show diagnostics in quickfix" })
-
+		-- Auto-close cleanup
 		local augroup = vim.api.nvim_create_augroup(
 			"NIM_RunFileWinClosed",
 			{ clear = true }
@@ -151,6 +175,7 @@ local function run_file_logic()
 
 	run_state.fpath = fpath
 
+	-- ... (Job Execution Logic - Unchanged) ...
 	local header =
 		{ "Running " .. table.concat(cmd, " ") .. " in " .. cwd, "---" }
 	vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, header)
@@ -200,7 +225,7 @@ end
 function M.setup(opts)
 	interpreters = opts.interpreters
 	keymap = opts.keymap
-	win_opts = opts.win_opts
+	config_opts = opts
 end
 
 M.logic = run_file_logic
