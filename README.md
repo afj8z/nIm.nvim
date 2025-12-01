@@ -175,8 +175,7 @@ of rendering the statusline with your style choices.
 It includes modules for Git, LSP (allowing you to filter out formatters or any LSP),
 Diagnostics, and file info.
 
-![status-line](./assets/status-line.png)
-_My minimal status-line setup_
+![status-line](./assets/status-line.png "My minimal status-line setup")
 
 > Note: The styling is kind of buggy, and not a priority of mine to fix, as
 > my own setup is super minimal.
