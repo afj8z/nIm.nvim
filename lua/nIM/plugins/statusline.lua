@@ -317,7 +317,7 @@ function M.setup(config)
 	})
 	generate_highlights()
 	vim.opt.statusline =
-		"%!v:lua.require('nIM.plugins.statusline').render_global()"
+	"%!v:lua.require('nIM.plugins.statusline').render_global()"
 end
 
 return M

@@ -25,7 +25,7 @@ function M.setup(config)
 
 			local val = args.data.params.value
 			progress_status =
-				{ client = client.name, kind = val.kind, title = val.title }
+			{ client = client.name, kind = val.kind, title = val.title }
 
 			if progress_status.kind == "end" then
 				progress_status.title = nil
@@ -106,7 +106,7 @@ function M.render()
 	local names = {}
 	-- Optimization: Only check conform/ignore list multiple clients or an ignore list
 	local ignored_set = (#clients > 1 or next(opts.ignore_list))
-			and get_ignored_names()
+		and get_ignored_names()
 		or {}
 
 	local active_lsp_set = {}
