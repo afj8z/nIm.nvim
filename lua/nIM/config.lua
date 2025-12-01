@@ -124,6 +124,164 @@ M.opts = {
 	},
 	---@class NIM_Statusline_Options
 	statusline = {
+
+		-- Module Definitions & Settings
+		modules = {
+			-- Built-in module configuration
+			file = {
+				path = "name", -- "name" | "relative" | "full"
+				filetype = true, -- Show extension/ft
+				highlight = "StatusLine",
+			},
+			lsp = {
+				-- Manually ignore specific client names (e.g. Copilot, or specific linters)
+				ignore_list = { "copilot", "copilot.lua" },
+
+				-- If true, checks 'conform.nvim' for active formatters and excludes them
+				-- from the LSP client count.
+				use_conform = false,
+
+				-- Show active formatter if different from active LSP
+				-- "lua_ls [stylua]"
+				show_formatter = false,
+			},
+			diagnostics = {
+				-- Enable/Disable specific severity levels
+				severity = {
+					error = true,
+					warn = true,
+					hint = true,
+					info = true,
+				},
+				-- Control persistence:
+				-- true  = Show icon + '0' when there are no issues.
+				-- false = Hide component entirely when count is 0.
+				persist = {
+					error = true,
+					warn = true,
+					hint = false,
+					info = false,
+				},
+			},
+			position = {
+				-- Display mode: "numbers" or "percentage"
+				mode = "numbers",
+				-- Configuration for "numbers" mode
+				numbers = {
+					show = {
+						line = true,
+						total_lines = true,
+						col = true,
+						line_length = false,
+					},
+					separators = {
+						-- Separator between Line info and Column info
+						vertical = ":",
+						-- Separator between Current Line and Total Lines
+						line = "/",
+						-- Separator between Current Column and Line Length
+						col = "/",
+					},
+				},
+			},
+			file_info = {
+				-- master switches for components
+				show = {
+					filetype = true,
+					encoding = true,
+					filesize = true,
+					permissions = true,
+				},
+				separator = " ",
+
+				-- Permissions Specific Settings
+				permissions = {
+					-- true = use abbreviations ("RO"), false = full string ("rwxr-xr-x")
+					short = true,
+
+					-- Custom abbreviations for 'short' mode
+					symbols = {
+						readonly = "RO", -- No write permission
+						executable = "EXE", -- Execute permission
+						rw = "RW", -- Standard Read/Write
+					},
+
+					-- Filter: Only show permissions if the file matches these states.
+					-- Options: "readonly", "executable", "rw"
+					-- Set to nil or {} to always show permissions (disable filtering).
+					only_show = nil,
+				},
+			},
+
+			git_branch = {
+				icon = "",
+				-- Toggle icon display
+				show_icon = true,
+				-- Max length before truncation (set to nil to disable)
+				max_len = 20,
+
+				-- If true, shows commit hash when in detached HEAD state (e.g. "a1b2c3d")
+				fallback_to_hash = true,
+			},
+			mode = {
+				-- "full" = "NORMAL", "short" = "N"
+				name = "full",
+
+				-- "mode"    = Use standard 'ModeMsg' highlight group.
+				-- "rainbow" = Use preset distinct colors (Blue=Normal, Green=Insert, etc.)
+				-- Table     = Custom map { "n" = "MyNormalHL", "i" = "MyInsertHL" }
+				colors = "rainbow",
+
+				-- String to wrap the mode name.
+				markers = "--",
+			},
+		},
+
+		-- Layout & Ordering
+		-- Use the keys defined above. 'separator' is a special keyword.
+		order = {
+			left = { "mode", "file", "git_branch" },
+			center = {},
+			right = {
+				"lsp",
+				"diagnostics",
+				"position",
+			},
+		},
+
+		-- Styling & Separators
+		style = {
+			-- Presets: nil, "powerline", "slanted", "bubble", "block"
+			preset = nil,
+
+			-- Colors: nil, "colorblocks", "groups", "each"
+			-- "colorblocks": Distinct BG per module, FG = Normal BG
+			-- "groups": Distinct BG per alignment group (Left/Center/Right)
+			-- "each": Distinct FG per module
+			colors = nil,
+
+			-- true: set backgrounds to greyscale
+			greyscale = false,
+
+			-- Islands: nil, "each", "groups", "both"
+			-- "each": Separators around every module
+			-- "groups": Separators around the whole group
+			islands = nil,
+
+			padding = {
+				line = 0, -- Padding at start/end of the statusline
+				modules = 1, -- Padding inside modules (e.g. " Name ")
+			},
+
+			-- Manual separator override (if preset is nil)
+			separator = {
+				enabled = false,
+				left = ">",
+				right = "<",
+			},
+			-- legacy, but potentially alternative to preset
+			boxed = nil,
+		},
 		-- Icons table
 		icons = {
 			diagnostics = {
@@ -136,6 +294,7 @@ M.opts = {
 		-- Filetypes that render a minimal "internal" statusline
 		internal_fts = {
 			"help",
+			"qf",
 			"checkhealth",
 			"man",
 			"lazy",
