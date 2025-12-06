@@ -2,6 +2,7 @@ local M = {}
 
 local interpreter_defaults = require("nIM.interpreters").defaults
 local style_defaults = require("nIM.ui.style").defaults
+local format_defaults = require("nIM.modules.snipshot.format").defaults
 
 ---@class NIM_Options
 ---@field enabled table Table to enable/disable sub-modules.
@@ -19,6 +20,7 @@ M.opts = {
 		run_file = true,
 		redir = true,
 		statusline = true,
+		snipshot = true,
 	},
 
 	---@class NIM_MatchParens_Options
@@ -315,11 +317,35 @@ M.opts = {
 			"fzf-lua",
 		},
 	},
+	---@class NIM_Snipshot_Options
+	snipshot = {
+		screenshot_dir = os.getenv("HOME") .. "/pictures/screenshots",
+		default_relative_dir = "assets",
+		default_format = "%s",
+
+		filetypes = {
+			markdown = {
+				relative_dir = "assets",
+				format = format_defaults.markdown,
+			},
+			typst = { relative_dir = "images", format = format_defaults.typst },
+			tex = { relative_dir = "figures", format = format_defaults.tex },
+			html = { relative_dir = "img", format = format_defaults.html },
+			css = { relative_dir = "img", format = format_defaults.css },
+		},
+
+		keymaps = {
+			-- Map action names to key chords
+			paste_recent = nil, -- e.g. "<Leader>p"
+			browse_global = nil, -- e.g. "<Leader>pg"
+			browse_local = nil, -- e.g. "<Leader>pl"
+		},
+	},
 
 	---@class NIM_Float_Options
 	-- Global defaults for any floating window created by nIM.
 	float = {
-		width = 0.8, -- Default width ratio (0.0 - 1.0) or fixed columns.
+		width = 0.8,  -- Default width ratio (0.0 - 1.0) or fixed columns.
 		height = 0.8, -- Default height ratio (0.0 - 1.0) or fixed rows.
 		border = "rounded", -- Border style: "single", "double", "rounded", "solid", "shadow".
 		style = "minimal", -- Window style (usually "minimal").

@@ -61,6 +61,19 @@ function M.setup(user_opts)
 		end
 	end
 
+	if opts.enabled.snipshot then
+		local ok, mod = pcall(require, "nIM.plugins.snipshot")
+		if ok then
+			mod.setup(opts.snipshot)
+			loaded_modules.snipshot = mod
+		else
+			vim.notify(
+				"Failed to load snipshot: " .. tostring(mod),
+				vim.log.levels.ERROR
+			)
+		end
+	end
+
 	keymaps.setup(opts, loaded_modules)
 end
 

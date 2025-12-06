@@ -1,15 +1,24 @@
-local check = require("util.error_checks")
-local input = "typ"
+-- lua/nIM/modules/snipshot/format.lua
+local M = {}
 
-local ft = {
-	"typ",
-	"txt",
-	"md",
+M.defaults = {
+	-- Markdown: ![filename](path)
+	markdown = "![%s](%s)",
+
+	-- Typst: #image("path")
+	typst = '#image("%s")',
+
+	-- LaTeX: \includegraphics{path}
+	tex = "\\includegraphics{%s}",
+
+	-- HTML: <img src="path" alt="filename">
+	html = '<img src="%s" alt="%s">',
+
+	-- CSS: url("path")
+	css = 'url("%s")',
+
+	-- Default fallback
+	text = "%s",
 }
-local filetype
 
-function test()
-	check.verify_key(ft, input, "Test error input ft not registered")
-end
-
-test()
+return M
