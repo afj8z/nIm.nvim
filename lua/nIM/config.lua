@@ -21,6 +21,7 @@ M.opts = {
 		redir = true,
 		statusline = true,
 		snipshot = true,
+		projectfile = true,
 	},
 
 	---@class NIM_MatchParens_Options
@@ -339,6 +340,28 @@ M.opts = {
 			paste_recent = nil, -- e.g. "<Leader>p"
 			browse_global = nil, -- e.g. "<Leader>pg"
 			browse_local = nil, -- e.g. "<Leader>pl"
+		},
+	},
+	---@class NIM_ProjectFile_Options
+	projectfile = {
+		---@type string[]
+		-- Files to search for recursively up to CWD
+		files = {
+			"README.md",
+			"Makefile",
+			".gitignore",
+			"package.json",
+			"pyproject.toml",
+			"Cargo.toml",
+			"go.mod",
+			".luarc.json",
+			"LICENSE",
+			"TODO.md",
+		},
+		---@type table<string, string>|nil
+		-- Map action names to key chords
+		keymaps = {
+			find = nil, -- e.g., "<Leader>pf"
 		},
 	},
 

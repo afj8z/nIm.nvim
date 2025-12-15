@@ -74,6 +74,19 @@ function M.setup(user_opts)
 		end
 	end
 
+	if opts.enabled.projectfile then
+		local ok, mod = pcall(require, "nIM.plugins.projectfile")
+		if ok then
+			mod.setup(opts.projectfile)
+			loaded_modules.projectfile = mod
+		else
+			vim.notify(
+				"Failed to load nIM.plugins.projectfile: " .. tostring(mod),
+				vim.log.levels.ERROR
+			)
+		end
+	end
+
 	keymaps.setup(opts, loaded_modules)
 end
 

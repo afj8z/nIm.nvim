@@ -1,10 +1,10 @@
 local M = {}
 local preview_util = require("nIM.util.preview")
 
----Generic file picker that prioritizes Fzf-Lua > Telescope > vim.ui.select
----@param prompt string The prompt title
----@param cwd string The directory to browse
----@param callback function(selected_path) Function to run with absolute path
+---File picker that prioritizes Fzf-Lua > Telescope > vim.ui.select
+---@param prompt string prompt title
+---@param cwd string directory to browse
+---@param callback function(selected_path) function to run with absolute path
 function M.open(prompt, cwd, callback)
 	if not vim.fn.isdirectory(cwd) then
 		vim.notify("nIM: Directory not found: " .. cwd, vim.log.levels.WARN)
@@ -57,6 +57,66 @@ function M.open(prompt, cwd, callback)
 	-- Fallback vim.ui.select
 	local files = vim.fn.globpath(cwd, "*", false, true)
 	vim.ui.select(files, { prompt = prompt }, function(item)
+		if item then
+			callback(item)
+		end
+	end)
+end
+
+---Generic list picker that prioritizes Fzf-Lua > Telescope > vim.ui.select
+---@param items table List of strings to pick from
+---@param prompt string The prompt title
+---@param callback function(selected_item)
+function M.select(items, prompt, callback)
+	-- Fzf-Lua
+	local has_fzf, fzf = pcall(require, "fzf-lua")
+	if has_fzf then
+		fzf.fzf_exec(items, {
+			prompt = prompt .. "> ",
+			actions = {
+				["default"] = function(selected)
+					if selected and selected[1] then
+						callback(selected[1])
+					end
+				end,
+			},
+		})
+		return
+	end
+
+	-- Telescope
+	local has_tele, _ = pcall(require, "telescope")
+	if has_tele then
+		local pickers = require("telescope.pickers")
+		local finders = require("telescope.finders")
+		local conf = require("telescope.config").values
+		local actions = require("telescope.actions")
+		local action_state = require("telescope.actions.state")
+
+		pickers
+			.new({}, {
+				prompt_title = prompt,
+				finder = finders.new_table({
+					results = items,
+				}),
+				sorter = conf.generic_sorter({}),
+				attach_mappings = function(prompt_bufnr, _)
+					actions.select_default:replace(function()
+						actions.close(prompt_bufnr)
+						local selection = action_state.get_selected_entry()
+						if selection then
+							callback(selection[1])
+						end
+					end)
+					return true
+				end,
+			})
+			:find()
+		return
+	end
+
+	-- Fallback
+	vim.ui.select(items, { prompt = prompt }, function(item)
 		if item then
 			callback(item)
 		end
